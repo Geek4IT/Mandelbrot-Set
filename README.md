@@ -1,9 +1,9 @@
-Mandelbrot-Set---God-s-fingureprint
+Mandelbrot Set God's fingureprint
 ===================================
 
-The beauty of math.
-</br>
-<img src="https://raw.github.com/Geek4IT/Mandelbrot-Set---God-s-fingureprint/master/image.png" alt="Mandelbrot Set Screenshot" width="640" height="640" />
+# The beauty of math.
+
+<img src="https://raw.github.com/Geek4IT/Mandelbrot-Set---God-s-fingureprint/master/image.png" alt="Mandelbrot Set Screenshot" width="640" height="532" />
 
 
 Description of Mandelbrot Set from wiki
