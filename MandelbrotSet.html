@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Geek4IT Mandelbrot Set - God's fingureprint</title>
+</head>
+<h3>Geek4IT - Mandebrot Set -  Gog's fingureprint</h3>
+</br>
+<canvas id="geek4it" style="border: none;" width="640" height="640"></canvas>
+
+<script id="vshader" type="x-shader/x-fragment">
+
+  attribute vec2 aVertexPosition;
+
+  void main() {
+    gl_Position = vec4(aVertexPosition, 0, 1);
+  }
+
+</script>
+
+
+<script id="fshader" type="x-shader/x-fragment">
+  #ifdef GL_FRAGMENT_PRECISION_HIGH
+    precision highp float;
+  #else
+    precision mediump float;
+  #endif
+  precision mediump int;
+  
+  uniform vec2 uCanvasSize;
+
+  uniform vec2 uOffset;
+  uniform float uScale;
+
+  vec4 calc(vec2 texCoord){
+    float x = 0.0; 
+    float y = 0.0;
+
+
+    for(int i=0; i<400; ++i){
+      float tempX = x*x - y*y + texCoord.x;
+      y = 2.0*x*y + texCoord.y;
+      x = tempX;
+
+      if(x*x+y*y >= 16.0) {
+        float d = (float(i) - (log(log(sqrt(x*x+y*y))) / log(2.0))) / 50.0;
+        return vec4(d/1.6,d,d/2.3, 1);
+      }
+    }
+
+    return vec4(0, 1, 0, 1);
+  }
+
+  void main() {
+    vec2 texCoord = (gl_FragCoord.xy / uCanvasSize.xy) * 2.0 - vec2(1.0, 1.0);
+    texCoord = texCoord * uScale + uOffset;
+
+
+    gl_FragColor = calc(texCoord);
+  }
+  
+</script>
+
+<script>
+var canvas, gl;
+var program;
+var vertices = [
+  -1, -1,
+   1, -1,
+  -1,  1,
+   1,  1
+];
+
+var offset = [0, 0];
+var scale = 1.35;
+
+
+function initWebGL(){
+  canvas = document.getElementById("geek4it");
+  gl = canvas.getContext("experimental-webgl") || canvas.getContext("webgl");
+
+  gl.clearColor(0, 0, 0, 1);
+  gl.clear(gl.COLOR_BUFFER_BIT);
+  gl.enable(gl.CULL_FACE);
+}
+
+function createShader(str, type) {
+  var shader = gl.createShader(type);
+  gl.shaderSource(shader, str);
+  gl.compileShader(shader);
+
+  if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+    throw gl.getShaderInfoLog(shader);
+  }
+
+  return shader;
+}
+
+function createProgram(vstr, fstr) {
+  var prog = gl.createProgram();
+  var vshader = createShader(vstr, gl.VERTEX_SHADER);
+  var fshader = createShader(fstr, gl.FRAGMENT_SHADER);
+  gl.attachShader(prog, vshader);
+  gl.attachShader(prog, fshader);
+  gl.linkProgram(prog);
+
+  if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) {
+    throw gl.getProgramInfoLog(prog);
+  }
+
+  return prog;
+}
+
+function initShaders(){
+  var vs = document.getElementById('vshader').textContent;
+  var fs = document.getElementById('fshader').textContent;
+  program = createProgram(vs, fs);
+  gl.useProgram(program);
+  program.vertexPosAttrib = gl.getAttribLocation(program, 'aVertexPosition');
+  program.canvasSizeUniform = gl.getUniformLocation(program, 'uCanvasSize');
+  program.offsetUniform = gl.getUniformLocation(program, 'uOffset');
+  program.scaleUniform = gl.getUniformLocation(program, 'uScale');
+}
+
+function drawScene(){
+  var vertexBufferObject = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, vertexBufferObject);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+  gl.vertexAttribPointer(program.vertexPosAttrib, 2, gl.FLOAT, false, 0, 0);
+  gl.enableVertexAttribArray(program.vertexPosAttrib);
+  gl.uniform2f(program.canvasSizeUniform, canvas.width, canvas.height);
+  gl.uniform2f(program.offsetUniform, offset[0], offset[1]);
+  gl.uniform1f(program.scaleUniform, scale);
+  gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+}
+
+initWebGL();
+initShaders();
+drawScene();
+
+var iv = null;
+var actions = [];
+var keyMappings = { '37' : 'panleft', '38' : 'panup', '39' : 'panright', '40' : 'pandown', '187' : 'zoomin', '189' : 'zoomout' };
+for (var k in keyMappings) {
+  actions[keyMappings[k]] = false;
+}
+
+function draw() {
+  offset[0] += -(actions.panleft ? scale / 25 : 0) + (actions.panright ? scale / 25 : 0);
+  offset[1] += -(actions.pandown ? scale / 25 : 0) + (actions.panup ? scale / 25 : 0);
+  scale = scale * (actions.zoomin ? 0.975 : 1.0) / (actions.zoomout ? 0.975 : 1.0);
+
+  gl.uniform2f(program.canvasSizeUniform, canvas.width, canvas.height);
+  gl.uniform2f(program.offsetUniform, offset[0], offset[1]);
+  gl.uniform1f(program.scaleUniform, scale);
+  gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+}
+
+window.onkeydown = function(e) {
+  var kc = e.keyCode.toString();
+  if (keyMappings.hasOwnProperty(kc)) {
+    actions[keyMappings[kc]] = true;
+  }
+  if (!iv) {
+    iv = setInterval(draw, 40);
+  }
+
+};
+window.onkeyup = function(e) {
+  var kc = e.keyCode.toString();
+  if (keyMappings.hasOwnProperty(kc)) {
+    actions[keyMappings[kc]] = false;
+  }
+  clearInterval(iv);
+  iv = null;
+};
+
+draw();
+
+window.onerror = function(msg, url, lineno) {
+  alert(url + '(' + lineno + '): ' + msg);
+}
+
+</script>
+
+</body>
+</html>
