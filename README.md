@@ -3,7 +3,8 @@ Mandelbrot-Set---God-s-fingureprint
 
 The beauty of math.
 
-<img width=640 src="https://github.com/Geek4IT/Mandelbrot-Set---God-s-fingureprint/blob/master/image.png"/> 
+<img src="https://github.com/Geek4IT/Mandelbrot-Set---God-s-fingureprint/blob/master/image.png" alt="Mandelbrot Set Screenshot" width="640" height="640" />
+
 
 Description of Mandelbrot Set from wiki
 http://en.wikipedia.org/wiki/Mandelbrot_set
