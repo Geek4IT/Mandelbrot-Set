@@ -2,7 +2,7 @@ Mandelbrot-Set---God-s-fingureprint
 ===================================
 
 The beauty of math.
-
+<img src="https://github.com/romaonthego/RESideMenu/raw/master/Screenshot.png" alt="RESideMenu Screenshot" width="400" height="480" />
 <img src="https://github.com/Geek4IT/Mandelbrot-Set---God-s-fingureprint/blob/master/image.png" alt="Mandelbrot Set Screenshot" width="640" height="640" />
 
 
